@@ -1,5 +1,7 @@
 package tests;
 
+import org.testng.util.Strings;
+
 import data.controllers.PetController;
 import data.controllers.StoreController;
 import data.utils.PropertyReader;
@@ -13,11 +15,11 @@ public abstract class TestBase {
     protected PetController petController;
 
     public TestBase() {
-        if (baseUrl.isEmpty()) {
+        if (Strings.isNullOrEmpty(baseUrl)) {
             baseUrl = getFileProperty("baseUrl");
         }
 
-        if (apiKey.isEmpty()) {
+        if (Strings.isNullOrEmpty(apiKey)) {
             apiKey = getFileProperty("apiKey");
         }
 

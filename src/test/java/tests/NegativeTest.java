@@ -71,7 +71,7 @@ public class NegativeTest extends TestBase {
     @Ignore
     @Test
     public void deleteOrderTest_returnsUnauthorizedTest() {
-        Response response = store.deleteOrder(TestHelper.generateRandomOrderId());
+        Response response = unauthorizedSpec.delete("order/" + TestHelper.generateRandomOrderId());
 
         response.then().statusCode(HttpStatus.SC_UNAUTHORIZED)
         .time(lessThan(1000L))

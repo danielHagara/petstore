@@ -1,6 +1,7 @@
 package tests;
 
 import org.testng.Assert;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 import data.classes.Order;
 import data.classes.Pet;
@@ -14,7 +15,7 @@ import static org.hamcrest.Matchers.lessThan;
 public class CreateOrderTest extends TestBase {
 
     @Test
-    public void createOrderTest() {
+    public void createOrderTest_validOrder() {
         Pet pet = new Pet();
         petController.createPet(pet);
         Order order = Order.builder()
@@ -37,5 +38,25 @@ public class CreateOrderTest extends TestBase {
         Assert.assertTrue(order.equals(createdOrder));
     }
 
+    @Ignore
+    @Test
+    public void createOrderTest_invalidOrder() {
+        // contains pet, but not a quantity
+        Pet pet = new Pet();
+        petController.createPet(pet);
+        Order order = Order.builder()
+            .id(TestHelper.generateRandomOrderId())
+            .petId(pet.getPetId())
+            .shipDate(TestHelper.getCurrentDateTimeString())
+            .status("placed")
+            .complete(true)
+            .build();
+        
+        Response response = store.createOrder(order);
+
+        response.then().statusCode(HttpStatus.SC_BAD_REQUEST)
+        .time(lessThan(1000L))
+        .log().ifValidationFails();
+    }
 
 }
