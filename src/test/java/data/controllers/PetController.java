@@ -10,19 +10,14 @@ public class PetController {
     
     private RequestSpecification request;
 
-    public PetController(String baseUrl, String apiKey) {
-        request = RestAssured
-            .given().baseUri(baseUrl + "/pet")
-            .header("api_key", apiKey)
-            .log().method()
-            .log().uri()
-            .when();
+    public PetController(RequestSpecification requestSpecification) {
+        this.request = RestAssured.given().spec(requestSpecification);
     }
 
     public Response createPet(Pet pet) {
         return request
             .header("Content-Type", "application/json")
             .body(JsonConverter.convertToJson(pet))
-            .post();
+            .post("pet");
     }
 }

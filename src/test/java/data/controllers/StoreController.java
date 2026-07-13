@@ -9,44 +9,40 @@ import io.restassured.specification.RequestSpecification;
 public class StoreController {
 
     private RequestSpecification request;
+    private String orderUrlPath = "store/order/";
 
-    public StoreController(String baseUrl, String apiKey) {
-        request = RestAssured
-            .given().baseUri(baseUrl + "/store")
-            .header("api_key", apiKey)
-            .log().method()
-            .log().uri()
-            .when();
+    public StoreController(RequestSpecification requestSpecification) {
+        this.request = RestAssured.given().spec(requestSpecification);
     }
 
     public Response getInventory() {
          return request
-            .get("/inventory");
+            .get("store/inventory");
     }
 
     public Response createOrder(Order order) {
          return request
             .header("Content-Type", "application/json")
-            .body(JsonConverter.convertToJson(order)).log().body()
-            .post("/order");
+            .body(JsonConverter.convertToJson(order))
+            .post(orderUrlPath);
     }
 
     public Response updateOrder(Order order) {
          return request
             .header("Content-Type", "application/json")
-            .body(JsonConverter.convertToJson(order)).log().body()
-            .put("order/" + order.getId());
+            .body(JsonConverter.convertToJson(order))
+            .put(orderUrlPath+ order.getId());
     }
 
     public Response getOrder(int orderId) {
          return request
-            .get("order/" + orderId);
+            .get(orderUrlPath + orderId);
     }
 
     public Response deleteOrder(int orderId) {
         return request
             .header("Content-Type", "application/json")
-            .delete("order/" + orderId);
+            .delete(orderUrlPath + orderId);
     }
 
 }

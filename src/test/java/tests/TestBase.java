@@ -2,17 +2,16 @@ package tests;
 
 import org.testng.util.Strings;
 
-import data.controllers.PetController;
-import data.controllers.StoreController;
 import data.utils.PropertyReader;
+import io.restassured.RestAssured;
+import io.restassured.config.LogConfig;
+import io.restassured.filter.log.LogDetail;
 
 public abstract class TestBase {
 
     protected PropertyReader propertyReader;
     protected String baseUrl = System.getProperty("baseUrl");
     protected String apiKey = System.getProperty("apiKey");
-    protected StoreController store;
-    protected PetController petController;
 
     public TestBase() {
         if (Strings.isNullOrEmpty(baseUrl)) {
@@ -23,8 +22,10 @@ public abstract class TestBase {
             apiKey = getFileProperty("apiKey");
         }
 
-        store = new StoreController(baseUrl, apiKey);
-        petController = new PetController(baseUrl, apiKey);
+        RestAssured.config = RestAssured.config()
+            .logConfig(LogConfig.logConfig()
+                        .enableLoggingOfRequestAndResponseIfValidationFails(LogDetail.ALL)
+                        .enablePrettyPrinting(true));
     }
 
     private String getFileProperty(String key) {

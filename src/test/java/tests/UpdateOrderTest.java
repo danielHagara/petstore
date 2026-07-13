@@ -1,7 +1,8 @@
 package tests;
 
+import static org.hamcrest.Matchers.lessThan;
+
 import org.apache.http.HttpStatus;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -15,11 +16,8 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
-import static org.hamcrest.Matchers.equalToIgnoringCase;
-import static org.hamcrest.Matchers.lessThan;
+public class UpdateOrderTest extends TestBase {
 
-public class GetOrderTest extends TestBase {
-    
     private StoreController store;
     private PetController petController;
 
@@ -36,11 +34,9 @@ public class GetOrderTest extends TestBase {
     }
     
     @Test
-    public void getOrder_ofExistingOrder_isSuccessfulTest() {
-        // making sure pet exists
+    public void updateOrder_isNotAllowedTest() {
         Pet pet = new Pet();
         petController.createPet(pet);
-        // making sure order exists
         Order order = Order.builder()
             .id(TestHelper.generateRandomOrderId())
             .petId(pet.getPetId())
@@ -51,27 +47,10 @@ public class GetOrderTest extends TestBase {
             .build();
         store.createOrder(order);
 
-        Response response = store.getOrder(order.getId());
+        order.setQuantity(2);
+        Response response = store.updateOrder(order);
 
-        response.then()
-        .statusCode(HttpStatus.SC_OK)
-        .time(lessThan(1000L));
-        TestHelper.assertHeaders(response);
-        Order createdOrder = response.then()
-        .extract().body().as(Order.class);
-        Assert.assertTrue(order.equals(createdOrder)); 
-    }
-
-    @Test
-    public void getOrder_ofNonExistingOrder_returnsNotFoundTest() {
-        int orderId = TestHelper.generateRandomOrderId();
-        // making sure order doesnt exist
-        store.deleteOrder(orderId);
-
-        Response response = store.getOrder(orderId);
-        
-        response.then()
-        .statusCode(HttpStatus.SC_NOT_FOUND)
-        .assertThat().body("message", equalToIgnoringCase("order not found"));
+        response.then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED)
+        .time(lessThan(1000L));    
     }
 }
