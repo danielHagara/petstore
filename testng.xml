@@ -7,6 +7,7 @@
             <class name="tests.GetOrderTest" />
             <class name="tests.GetInventoryTest" />
             <class name="tests.NegativeTest" />
+            <class name="tests.UpdateOrderTest" />
         </classes>
     </test>
 </suite>
