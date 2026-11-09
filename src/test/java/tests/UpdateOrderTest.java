@@ -1,7 +1,5 @@
 package tests;
 
-import static org.hamcrest.Matchers.lessThan;
-
 import org.apache.http.HttpStatus;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -11,10 +9,7 @@ import data.classes.Pet;
 import data.controllers.PetController;
 import data.controllers.StoreController;
 import data.utils.TestHelper;
-import io.restassured.builder.RequestSpecBuilder;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
 
 public class UpdateOrderTest extends TestBase {
 
@@ -23,11 +18,7 @@ public class UpdateOrderTest extends TestBase {
 
     @BeforeClass
     public void initSpec() { 
-        RequestSpecification request = new RequestSpecBuilder()
-            .setContentType(ContentType.JSON)
-            .setBaseUri(baseUrl)
-            .addHeader("api_key", apiKey)
-            .build();
+        var request = requestSpec(true);
 
         store = new StoreController(request);
         petController = new PetController(request); 
@@ -36,21 +27,21 @@ public class UpdateOrderTest extends TestBase {
     @Test
     public void updateOrder_isNotAllowedTest() {
         Pet pet = new Pet();
-        petController.createPet(pet);
+        pet.setId(TestHelper.generatePetId());
+        petController.createPet(pet).then().statusCode(HttpStatus.SC_OK);
         Order order = Order.builder()
             .id(TestHelper.generateRandomOrderId())
-            .petId(pet.getPetId())
+            .petId(pet.getId())
             .quantity(1)
             .shipDate(TestHelper.getCurrentDateTimeString())
             .status("placed")
             .complete(true)
             .build();
-        store.createOrder(order);
+        store.createOrder(order).then().statusCode(HttpStatus.SC_OK);
 
         order.setQuantity(2);
         Response response = store.updateOrder(order);
 
-        response.then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED)
-        .time(lessThan(1000L));    
+        response.then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
     }
 }

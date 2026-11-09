@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class Pet {
-    private int petId = 10;
+    private int id = 10;
     private String name = "test pet";
     private String status = "available";
 }

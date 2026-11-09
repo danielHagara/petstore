@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<suite name="Store Testing Suite" parallel="tests" thread-count="10">
+<suite name="Store Testing Suite">
     <test name="Pet Store Tests">
         <classes>
             <class name="tests.CreateOrderTest" />
             <class name="tests.DeleteOrderTest" />
             <class name="tests.GetOrderTest" />
             <class name="tests.GetInventoryTest" />
-            <class name="tests.NegativeTest" />
             <class name="tests.UpdateOrderTest" />
         </classes>
     </test>

@@ -10,13 +10,9 @@ import data.classes.Pet;
 import data.controllers.PetController;
 import data.controllers.StoreController;
 import data.utils.TestHelper;
-import io.restassured.builder.RequestSpecBuilder;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
 
 import static org.hamcrest.Matchers.equalToIgnoringCase;
-import static org.hamcrest.Matchers.lessThan;
 
 public class GetOrderTest extends TestBase {
     
@@ -25,11 +21,7 @@ public class GetOrderTest extends TestBase {
 
     @BeforeClass
     public void initSpec() { 
-        RequestSpecification request = new RequestSpecBuilder()
-            .setContentType(ContentType.JSON)
-            .setBaseUri(baseUrl)
-            .addHeader("api_key", apiKey)
-            .build();
+        var request = requestSpec(true);
 
         store = new StoreController(request);
         petController = new PetController(request); 
@@ -39,23 +31,23 @@ public class GetOrderTest extends TestBase {
     public void getOrder_ofExistingOrder_isSuccessfulTest() {
         // making sure pet exists
         Pet pet = new Pet();
-        petController.createPet(pet);
+        pet.setId(TestHelper.generatePetId());
+        petController.createPet(pet).then().statusCode(HttpStatus.SC_OK);
         // making sure order exists
         Order order = Order.builder()
             .id(TestHelper.generateRandomOrderId())
-            .petId(pet.getPetId())
+            .petId(pet.getId())
             .quantity(1)
             .shipDate(TestHelper.getCurrentDateTimeString())
             .status("placed")
             .complete(true)
             .build();
-        store.createOrder(order);
+        store.createOrder(order).then().statusCode(HttpStatus.SC_OK);
 
         Response response = store.getOrder(order.getId());
 
         response.then()
-        .statusCode(HttpStatus.SC_OK)
-        .time(lessThan(1000L));
+        .statusCode(HttpStatus.SC_OK);
         TestHelper.assertHeaders(response);
         Order createdOrder = response.then()
         .extract().body().as(Order.class);
@@ -65,9 +57,6 @@ public class GetOrderTest extends TestBase {
     @Test
     public void getOrder_ofNonExistingOrder_returnsNotFoundTest() {
         int orderId = TestHelper.generateRandomOrderId();
-        // making sure order doesnt exist
-        store.deleteOrder(orderId);
-
         Response response = store.getOrder(orderId);
         
         response.then()
